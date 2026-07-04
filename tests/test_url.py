@@ -2513,6 +2513,48 @@ def test_join_encoded_url() -> None:
     assert new.path == "/api/4"
 
 
+def test_join_preserves_percent_encoding_in_base_path() -> None:
+    """Percent-encoded segments in the base path round-trip through join.
+
+    The merge in URL.join is built from the raw (still-encoded) segments of the
+    base path, not from the decoded parts. Without that, a base of
+    ``/a%2Fb/c`` joined with ``d`` would collapse ``%2F`` into a path separator
+    and produce ``/a/b/d`` (one path segment lost) instead of ``/a%2Fb/d``.
+    Same shape for any percent-encoded delimiter or reserved character in a
+    segment; the encoding of the base must round-trip regardless of what the
+    relative reference contains.
+
+    Regression test for #1774.
+    """
+    cases = [
+        # base, relative, expected
+        ("http://x/a%2Fb/c", "d", "http://x/a%2Fb/d"),
+        ("http://x/a%20b/c", "d", "http://x/a%20b/d"),
+        # Trailing slash on the base still triggers the merge branch but the
+        # result is the same as the URL-join append (no segment drop).
+        ("http://x/a%2Fb/c/", "d", "http://x/a%2Fb/c/d"),
+        # Multi-byte encoded segments must round-trip too.
+        ("http://x/%E2%9C%93/q", "next", "http://x/%E2%9C%93/next"),
+    ]
+    for base, relative, expected in cases:
+        result = URL(base).join(URL(relative))
+        assert str(result) == expected, (base, relative, result)
+
+
+def test_join_preserves_percent_encoding_with_relative_dot_segments() -> None:
+    """Percent-encoded base segments survive dot-segment removal.
+
+    The normalizer is run after the merge. It must not re-decode the raw
+    segments when stripping ``.`` and ``..`` entries. A base of
+    ``/a%2Fb/c/d`` joined with ``../e`` should keep the ``a%2Fb``
+    segment intact and produce ``/a%2Fb/e``.
+
+    Regression test for #1774.
+    """
+    result = URL("http://x/a%2Fb/c/d").join(URL("../e"))
+    assert str(result) == "http://x/a%2Fb/e"
+
+
 # cache
 
 

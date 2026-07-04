@@ -1,0 +1,6 @@
+Preserved percent-encoded segments in the base URL path when merging a
+relative reference in ``URL.join``. The merge path now uses the raw
+segments (``raw_parts``) so an encoded delimiter such as ``%2F`` or an
+encoded space ``%20`` round-trips instead of being decoded into a path
+separator or a literal space during the merge.
+-- by :user:`HrachShah`.
