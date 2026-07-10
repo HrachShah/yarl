@@ -1261,8 +1261,15 @@ class URL:
             return self
         if query := self._query:
             # both strings are already encoded so we can use a simple
-            # string join
-            query += new_query if query[-1] == "&" else f"&{new_query}"
+            # string join. Trim stray '&' on either side so a self._query
+            # ending in '&' (e.g. from a URL literal like '?a=1&') or a
+            # new_query starting with '&' (e.g. from extend_query('&b=2'))
+            # does not produce a malformed '...&&...' separator. The
+            # previous query[-1] == '&' check only handled the self._query
+            # side and silently fell through on the new_query side.
+            query = query.rstrip("&")
+            new_query = new_query.lstrip("&")
+            query = f"{query}&{new_query}" if new_query else query
         else:
             query = new_query
         return from_parts_uncached(

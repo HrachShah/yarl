@@ -470,3 +470,25 @@ def test_extend_query_with_non_ascii_same_key() -> None:
         "&%F0%9D%95%A6=%F0%9D%95%A6&%F0%9D%95%A6=%F0%9D%95%A6"
     )
     assert url.extend_query({"𝕦": "𝕦"}) == expected
+
+def test_extend_query_normalises_ampersand_separator() -> None:
+    """extend_query must not produce a '&&' separator when either side has a
+    stray '&' (trailing '&' on the existing query, or a leading '&' on the
+    new query passed as a str). The previous 'query[-1] == "&"' check only
+    handled the trailing side and silently produced a malformed query like
+    'a=1&&b=2' in the other direction."""
+    # existing query ends with '&', new query has no leading '&'
+    url = URL("http://example.com/?a=1&")
+    assert str(url.extend_query("b=2")) == "http://example.com/?a=1&b=2"
+
+    # new query has a leading '&'
+    url = URL("http://example.com/?a=1")
+    assert str(url.extend_query("&b=2")) == "http://example.com/?a=1&b=2"
+
+    # both: extra '&' on either side, should still produce exactly one separator
+    url = URL("http://example.com/?a=1&")
+    assert str(url.extend_query("&b=2")) == "http://example.com/?a=1&b=2"
+
+    # and a leading-only '&&' on the new side should also be normalised
+    url = URL("http://example.com/?a=1")
+    assert str(url.extend_query("&&b=2")) == "http://example.com/?a=1&b=2"
