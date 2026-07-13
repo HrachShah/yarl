@@ -1505,6 +1505,13 @@ def test_with_path_leading_slash() -> None:
     assert url.with_path("test").path == "/test"
 
 
+def test_with_path_non_str() -> None:
+    """with_path should reject non-str input with a clear TypeError."""
+    with pytest.raises(TypeError) as excinfo:
+        URL("http://example.com").with_path(123)  # type: ignore[arg-type]
+    assert excinfo.value.args[0] == "Invalid path type"
+
+
 # with_fragment
 
 
