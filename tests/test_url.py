@@ -1265,6 +1265,14 @@ def test_joinpath_single_empty_segments() -> None:
     assert b.path == "/1/2/3"
 
 
+def test_joinpath_non_str_segment() -> None:
+    """joinpath should reject non-str segments with a clear TypeError."""
+    with pytest.raises(TypeError, match="Invalid path type"):
+        URL("http://example.com").joinpath(123)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="Invalid path type"):
+        URL("http://example.com").joinpath("a", 123, "b")  # type: ignore[arg-type]
+
+
 @pytest.mark.parametrize(
     "url,to_join,expected",
     [

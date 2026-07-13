@@ -1,0 +1,6 @@
+Validated the type of each path segment passed to
+:meth:`URL.joinpath <yarl.URL.joinpath>`; non-string inputs (e.g.
+``URL("http://example.com").joinpath(123)``) now raise
+:class:`TypeError` with a clear message instead of surfacing an opaque
+``'int' object is not subscriptable`` exception from
+``URL._make_child`` when the segment is dereferenced.

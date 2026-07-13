@@ -1076,6 +1076,9 @@ class URL:
         add paths to self._path, accounting for absolute vs relative paths,
         keep existing, but do not create new, empty segments
         """
+        for _path in paths:
+            if not isinstance(_path, str):
+                raise TypeError("Invalid path type")
         parsed: list[str] = []
         needs_normalize: bool = False
         for idx, path in enumerate(reversed(paths)):
