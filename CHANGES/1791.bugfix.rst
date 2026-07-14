@@ -1,0 +1,5 @@
+Validated the type of the ``path`` argument to
+:meth:`URL.with_path <yarl.URL.with_path>`; non-string inputs (e.g.
+``URL("http://example.com").with_path(123)``) now raise
+:class:`TypeError` with a clear message instead of surfacing an opaque
+``Argument should be str`` exception from the C-level quoter.

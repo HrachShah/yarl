@@ -68,6 +68,22 @@ def test_repr() -> None:
     assert "URL('http://example.com')" == repr(url)
 
 
+def test_repr_masks_password() -> None:
+    """Password components are masked in repr so credentials do not leak."""
+    assert repr(URL("https://user:secret@example.com")) == \
+        "URL('https://user:******@example.com')"
+    # Empty password is left alone (no real secret to hide).
+    assert repr(URL("https://user:@example.com")) == \
+        "URL('https://user:@example.com')"
+    # Empty user + non-empty password still masks the password.
+    assert repr(URL("https://:secret@example.com")) == \
+        "URL('https://:******@example.com')"
+    # str() is unchanged: it still surfaces the real password for
+    # callers that explicitly opted in.
+    assert str(URL("https://user:secret@example.com")) == \
+        "https://user:secret@example.com"
+
+
 def test_origin() -> None:
     url = URL("http://user:password@example.com:8888/path/to?a=1&b=2")
     assert URL("http://example.com:8888") == url.origin()
@@ -1249,6 +1265,14 @@ def test_joinpath_single_empty_segments() -> None:
     assert b.path == "/1/2/3"
 
 
+def test_joinpath_non_str_segment() -> None:
+    """joinpath should reject non-str segments with a clear TypeError."""
+    with pytest.raises(TypeError, match="Invalid path type"):
+        URL("http://example.com").joinpath(123)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="Invalid path type"):
+        URL("http://example.com").joinpath("a", 123, "b")  # type: ignore[arg-type]
+
+
 @pytest.mark.parametrize(
     "url,to_join,expected",
     [
@@ -1487,6 +1511,13 @@ def test_with_path_empty() -> None:
 def test_with_path_leading_slash() -> None:
     url = URL("http://example.com")
     assert url.with_path("test").path == "/test"
+
+
+def test_with_path_non_str() -> None:
+    """with_path should reject non-str input with a clear TypeError."""
+    with pytest.raises(TypeError) as excinfo:
+        URL("http://example.com").with_path(123)  # type: ignore[arg-type]
+    assert excinfo.value.args[0] == "Invalid path type"
 
 
 # with_fragment

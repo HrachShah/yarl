@@ -65,6 +65,7 @@ if TYPE_CHECKING:
 
 
 DEFAULT_PORTS = {"http": 80, "https": 443, "ws": 80, "wss": 443, "ftp": 21}
+_URL_REPR_PASSWORD_MASK = "*"
 USES_RELATIVE = frozenset(uses_relative)
 _SCHEME_CHARS = frozenset(scheme_chars)
 
@@ -528,7 +529,26 @@ class URL:
         return unsplit_result(self._scheme, netloc, path, self._query, self._fragment)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}('{str(self)}')"
+        return f"{self.__class__.__name__}('{self._repr_str()}')"
+
+    def _repr_str(self) -> str:
+        # Mask the password component (if any) before returning the rendered
+        # URL so accidental logging of repr() does not surface credentials.
+        # str(self) does not mask the password.
+        if self.raw_password is None:
+            return str(self)
+        # Rebuild the netloc with the password replaced by a fixed-width
+        # redaction marker. The marker length matches the password length
+        # so the redacted URL keeps a stable width regardless of password
+        # value (handy for log diffing) but does not reveal anything about
+        # the password itself.
+        netloc = make_netloc(
+            self.raw_user,
+            _URL_REPR_PASSWORD_MASK * len(self.raw_password),
+            self.raw_host,
+            self.explicit_port,
+        )
+        return unsplit_result(self._scheme, netloc, self._path, self._query, self._fragment)
 
     def __bytes__(self) -> bytes:
         return str(self).encode("ascii")
@@ -1056,6 +1076,9 @@ class URL:
         add paths to self._path, accounting for absolute vs relative paths,
         keep existing, but do not create new, empty segments
         """
+        for _path in paths:
+            if not isinstance(_path, str):
+                raise TypeError("Invalid path type")
         parsed: list[str] = []
         needs_normalize: bool = False
         for idx, path in enumerate(reversed(paths)):
@@ -1205,6 +1228,8 @@ class URL:
         keep_fragment: bool = False,
     ) -> "URL":
         """Return a new URL with path replaced."""
+        if not isinstance(path, str):
+            raise TypeError("Invalid path type")
         netloc = self._netloc
         if not encoded:
             path = PATH_QUOTER(path)
@@ -1424,7 +1449,7 @@ class URL:
         """
         if not isinstance(suffix, str):
             raise TypeError("Invalid suffix type")
-        if suffix and not suffix[0] == "." or suffix == "." or "/" in suffix:
+        if suffix and (suffix[0] != "." or suffix == "." or "/" in suffix):
             raise ValueError(f"Invalid suffix {suffix!r}")
         name = self.raw_name
         if not name:
