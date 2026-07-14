@@ -1,0 +1,11 @@
+Hardened :meth:`URL.build` against non-string input: ``scheme``,
+``authority``, ``host``, ``path``, ``query_string``, and ``fragment`` now
+raise :class:`TypeError` with a named-argument message at the call site
+when the value is not a :class:`str` (a previous call like
+``URL.build(scheme=123)`` silently produced a junk URL and a follow-up
+``URL.build(host=123)`` raised a bare ``'int' object is not subscriptable``
+deep inside the netloc assembly). The pre-existing ``None`` rejection now
+sits alongside the new type check, so the two error shapes share a single
+code path and ``bool`` values are also rejected because :class:`bool` is a
+subclass of :class:`int` and not a :class:`str`
+-- by :user:`HrachShah`.
