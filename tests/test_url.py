@@ -1489,6 +1489,14 @@ def test_with_path_leading_slash() -> None:
     assert url.with_path("test").path == "/test"
 
 
+def test_with_path_non_str() -> None:
+    url = URL("http://example.com")
+    with pytest.raises(TypeError, match="Invalid path type"):
+        url.with_path(123)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="Invalid path type"):
+        url.with_path(None)  # type: ignore[arg-type]
+
+
 # with_fragment
 
 
