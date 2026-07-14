@@ -426,6 +426,41 @@ def test_build_with_none_fragment() -> None:
         URL.build(scheme="http", host="example.com", fragment=None)  # type: ignore[arg-type]
 
 
+@pytest.mark.parametrize(
+    ("arg_name", "bad_value", "bad_type_name"),
+    [
+        pytest.param("scheme", 1, "int", id="scheme-int"),
+        pytest.param("scheme", 1.0, "float", id="scheme-float"),
+        pytest.param("scheme", [], "list", id="scheme-list"),
+        pytest.param("scheme", {}, "dict", id="scheme-dict"),
+        pytest.param("scheme", set(), "set", id="scheme-set"),
+        pytest.param("host", 1, "int", id="host-int"),
+        pytest.param("host", 1.0, "float", id="host-float"),
+        pytest.param("host", [], "list", id="host-list"),
+        pytest.param("host", {}, "dict", id="host-dict"),
+        pytest.param("host", set(), "set", id="host-set"),
+    ],
+)
+def test_build_rejects_non_string_arg(arg_name, bad_value, bad_type_name):
+    with pytest.raises(TypeError, match=r"expected str") as ctx:
+        URL.build(**{arg_name: bad_value})  # type: ignore[arg-type]
+    message = str(ctx.value)
+    assert arg_name in message
+    assert bad_type_name in message
+
+
+def test_build_rejects_bool_for_str_arg():
+    with pytest.raises(TypeError, match=r"expected str"):
+        URL.build(scheme=True)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match=r"expected str"):
+        URL.build(host=False)  # type: ignore[arg-type]
+
+
+def test_build_still_accepts_string_kwargs():
+    u = URL.build(scheme="http", host="example.com", path="/a")
+    assert str(u) == "http://example.com/a"
+
+
 def test_build_uppercase_host() -> None:
     u = URL.build(
         host="UPPER.case",

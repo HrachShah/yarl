@@ -441,18 +441,25 @@ class URL:
             raise ValueError('Can\'t build URL with "port" but without "host".')
         if query and query_string:
             raise ValueError('Only one of "query" or "query_string" should be passed')
-        if (
-            scheme is None  # type: ignore[redundant-expr]
-            or authority is None  # type: ignore[redundant-expr]
-            or host is None  # type: ignore[redundant-expr]
-            or path is None  # type: ignore[redundant-expr]
-            or query_string is None  # type: ignore[redundant-expr]
-            or fragment is None
-        ):
-            raise TypeError(
-                'NoneType is illegal for "scheme", "authority", "host", "path", '
-                '"query_string", and "fragment" args, use empty string instead.'
-            )
+        _STR_FIELDS: tuple[tuple[str, object], ...] = (
+            ("scheme", scheme),
+            ("authority", authority),
+            ("host", host),
+            ("path", path),
+            ("query_string", query_string),
+            ("fragment", fragment),
+        )
+        for _name, _value in _STR_FIELDS:
+            if _value is None:
+                raise TypeError(
+                    'NoneType is illegal for "scheme", "authority", "host", "path", '
+                    '"query_string", and "fragment" args, use empty string instead.'
+                )
+            if not isinstance(_value, str):
+                raise TypeError(
+                    f'Got {type(_value).__name__} ({_value!r}) for "{_name}" '
+                    f"argument, expected str."
+                )
 
         if query:
             query_string = get_str_query(query) or ""
