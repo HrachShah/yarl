@@ -448,9 +448,13 @@ class URL:
             ("path", path),
             ("query_string", query_string),
             ("fragment", fragment),
+            ("user", user),
+            ("password", password),
         )
         for _name, _value in _STR_FIELDS:
             if _value is None:
+                if _name in {"user", "password"}:
+                    continue
                 raise TypeError(
                     'NoneType is illegal for "scheme", "authority", "host", "path", '
                     '"query_string", and "fragment" args, use empty string instead.'

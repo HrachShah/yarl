@@ -467,3 +467,18 @@ def test_build_uppercase_host() -> None:
         encoded=False,
     )
     assert u.host == "upper.case"
+
+
+@pytest.mark.parametrize(
+    ("arg_name", "bad_value"),
+    [
+        pytest.param("user", 1, id="user-int"),
+        pytest.param("user", b"name", id="user-bytes"),
+        pytest.param("password", 1, id="password-int"),
+    ],
+)
+def test_build_rejects_non_string_credentials(arg_name, bad_value):
+    with pytest.raises(TypeError, match=r"expected str") as ctx:
+        URL.build(host="example.com", **{arg_name: bad_value})  # type: ignore[arg-type]
+    assert arg_name in str(ctx.value)
+    assert type(bad_value).__name__ in str(ctx.value)
