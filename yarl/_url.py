@@ -437,7 +437,7 @@ class URL:
             )
         if port is not None and (isinstance(port, bool) or not isinstance(port, int)):
             raise TypeError(f"The port is required to be int, got {type(port)!r}.")
-        if port and not host:
+        if port is not None and not host:
             raise ValueError('Can\'t build URL with "port" but without "host".')
         if query and query_string:
             raise ValueError('Only one of "query" or "query_string" should be passed')

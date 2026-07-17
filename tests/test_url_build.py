@@ -111,6 +111,12 @@ def test_build_with_scheme_and_host() -> None:
         pytest.param(
             "", TypeError, r"^The port is required to be int, got .*\.$", id="port-str"
         ),
+        pytest.param(
+            0,
+            ValueError,
+            r'^Can\'t\ build\ URL\ with\ "port"\ but\ without\ "host"\.$',
+            id="port-zero-only",
+        ),
     ],
 )
 def test_build_with_port(port: int, exc: type[Exception], match: str) -> None:
