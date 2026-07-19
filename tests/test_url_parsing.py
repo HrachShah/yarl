@@ -229,6 +229,11 @@ class TestPort:
         with pytest.raises(ValueError):
             URL("//h:-80/path")
 
+    @pytest.mark.parametrize("port", [" 80", "+80", "80 ", "０８０"])
+    def test_port_must_contain_ascii_digits_only(self, port: str) -> None:
+        with pytest.raises(ValueError, match="port can't be converted to integer"):
+            URL(f"//h:{port}/path")
+
 
 class TestUserInfo:
     def test_canonical(self) -> None:
