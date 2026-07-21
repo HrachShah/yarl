@@ -91,8 +91,8 @@ def split_url(url: str) -> SplitURLType:
             # Valid bracketed hosts are defined in
             # https://www.rfc-editor.org/rfc/rfc3986#page-49
             # https://url.spec.whatwg.org/
-            if bracketed_host and bracketed_host[0] == "v":
-                if not re.match(r"\Av[a-fA-F0-9]+\..+\Z", bracketed_host):
+            if bracketed_host and bracketed_host[0].lower() == "v":
+                if not re.match(r"\A[vV][a-fA-F0-9]+\..+\Z", bracketed_host):
                     raise ValueError("IPvFuture address is invalid")
             elif ":" not in bracketed_host:
                 raise ValueError("The IPv6 content between brackets is not valid")

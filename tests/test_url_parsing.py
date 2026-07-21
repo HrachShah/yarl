@@ -184,6 +184,12 @@ class TestHost:
         assert u.query_string == ""
         assert u.fragment == ""
 
+    def test_uppercase_ipvfuture_address(self) -> None:
+        u = URL("//[V1.-1]/")
+        assert u.scheme == ""
+        assert u.host == "V1.-1"
+        assert u.path == "/"
+
 
 class TestPort:
     def test_canonical(self) -> None:
