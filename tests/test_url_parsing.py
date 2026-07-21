@@ -187,7 +187,7 @@ class TestHost:
     def test_uppercase_ipvfuture_address(self) -> None:
         u = URL("//[V1.-1]/")
         assert u.scheme == ""
-        assert u.host == "V1.-1"
+        assert u.host == "v1.-1"
         assert u.path == "/"
 
 
