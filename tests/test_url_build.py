@@ -118,6 +118,12 @@ def test_build_with_port(port: int, exc: type[Exception], match: str) -> None:
         URL.build(port=port)
 
 
+@pytest.mark.parametrize("port", [True, False])
+def test_build_rejects_boolean_port(port: bool) -> None:
+    with pytest.raises(TypeError, match="The port is required to be int"):
+        URL.build(scheme="http", host="example.com", port=port)
+
+
 def test_build_with_user() -> None:
     u = URL.build(scheme="http", host="127.0.0.1", user="foo")
     assert str(u) == "http://foo@127.0.0.1"
