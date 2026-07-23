@@ -424,6 +424,12 @@ def test_build_authority_with_text_after_bracket_is_invalid() -> None:
         URL.build(scheme="http", authority="[::1]allowed.example:1", path="/")
 
 
+@pytest.mark.parametrize("url", ("http://[v1.]/",))
+def test_ipfuture_requires_nonempty_address(url: str) -> None:
+    with pytest.raises(ValueError, match="IPvFuture address is invalid"):
+        URL(url)
+
+
 def test_ipfuture_brackets_not_allowed() -> None:
     with pytest.raises(ValueError, match="IPvFuture address is invalid"):
         URL("http://[v10]/")
