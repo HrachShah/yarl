@@ -1495,6 +1495,12 @@ def test_with_path_leading_slash() -> None:
     assert url.with_path("test").path == "/test"
 
 
+def test_with_path_preserves_bare_relative_url() -> None:
+    url = URL("foo/bar")
+    assert str(url.with_path("baz")) == "baz"
+    assert not url.with_path("baz").is_absolute()
+
+
 # with_fragment
 
 

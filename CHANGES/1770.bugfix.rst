@@ -1,0 +1,1 @@
+``URL.with_path`` preserves a bare-relative URL when replacing it with a path that does not start with ``/``. :issue:`1770`

@@ -1094,7 +1094,7 @@ class URL:
 
         path = "/".join(normalize_path_segments(parsed))
         # If normalizing the path segments removed the leading slash, add it back.
-        if path and path[0] != "/":
+        if path and path[0] != "/" and netloc:
             path = f"/{path}"
         return from_parts(self._scheme, netloc, path, "", "")
 
@@ -1210,7 +1210,7 @@ class URL:
             path = PATH_QUOTER(path)
             if netloc:
                 path = normalize_path(path) if "." in path else path
-        if path and path[0] != "/":
+        if path and path[0] != "/" and netloc:
             path = f"/{path}"
         query = self._query if keep_query else ""
         fragment = self._fragment if keep_fragment else ""
