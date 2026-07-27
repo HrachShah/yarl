@@ -148,6 +148,13 @@ def test_no_user() -> None:
     assert url.user is None
 
 
+def test_empty_user() -> None:
+    url = URL("http://@example.com")
+    assert url.user == ""
+    assert url.raw_user == ""
+    assert str(url) == "http://@example.com"
+
+
 def test_user_non_ascii() -> None:
     url = URL("http://бажан@example.com")
     assert "бажан" == url.user
