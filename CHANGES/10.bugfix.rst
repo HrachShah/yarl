@@ -1,0 +1,2 @@
+Preserved empty usernames when parsing and rebuilding URLs, while keeping password-only
+URLs represented without a username.

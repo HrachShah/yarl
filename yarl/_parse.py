@@ -156,8 +156,10 @@ def split_netloc(
     else:
         hostname, _, port_str = hostinfo.partition(":")
 
+    if username == "" and password is not None:
+        username = None
     if not port_str:
-        return username or None, password, hostname or None, None
+        return username, password, hostname or None, None
 
     try:
         port = int(port_str)
@@ -165,7 +167,7 @@ def split_netloc(
         raise ValueError("Invalid URL: port can't be converted to integer")
     if not (0 <= port <= 65535):
         raise ValueError("Port out of range 0-65535")
-    return username or None, password, hostname or None, port
+    return username, password, hostname or None, port
 
 
 def unsplit_result(
@@ -205,6 +207,8 @@ def make_netloc(
         ret = f"{ret}:{port}"
     if user is None and password is None:
         return ret
+    if user == "" and password is None:
+        return f"@{ret}"
     if password is not None:
         if not user:
             user = ""
