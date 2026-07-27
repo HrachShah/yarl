@@ -159,6 +159,9 @@ def split_netloc(
     if not port_str:
         return username or None, password, hostname or None, None
 
+    if not port_str.isascii() or not port_str.isdecimal():
+        raise ValueError("Invalid URL: port can't be converted to integer")
+
     try:
         port = int(port_str)
     except ValueError:
