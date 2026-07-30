@@ -433,6 +433,12 @@ def test_uppercase_ipfuture_version_is_valid() -> None:
     assert str(URL("http://[Vf.foo]/")) == "http://vf.foo/"
 
 
+@pytest.mark.parametrize("url", ("http://[v1.fe%20evil]/",))
+def test_ipfuture_rejects_invalid_address_characters(url: str) -> None:
+    with pytest.raises(ValueError, match="IPvFuture address is invalid"):
+        URL(url)
+
+
 def test_ipfuture_brackets_not_allowed() -> None:
     with pytest.raises(ValueError, match="IPvFuture address is invalid"):
         URL("http://[v10]/")
