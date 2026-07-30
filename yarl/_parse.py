@@ -161,6 +161,8 @@ def split_netloc(
 
     if not port_str:
         return username or None, password, hostname or None, None
+    if not port_str.isascii() or not port_str.isdigit():
+        raise ValueError("Invalid URL: port must contain only ASCII digits")
 
     try:
         port = int(port_str)

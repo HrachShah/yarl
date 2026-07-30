@@ -444,6 +444,18 @@ def test_ipfuture_brackets_not_allowed() -> None:
         URL("http://[v10]/")
 
 
+@pytest.mark.parametrize("port", ("１２", "١٢"))
+def test_non_ascii_port_digits_are_rejected(port: str) -> None:
+    with pytest.raises(ValueError, match="port must contain only ASCII digits"):
+        URL(f"http://example.com:{port}/")
+
+
+@pytest.mark.parametrize("port", ("１２", "١٢", "+80", "80 "))
+def test_port_requires_ascii_digits(port: str) -> None:
+    with pytest.raises(ValueError, match="port must contain only ASCII digits"):
+        URL(f"http://example.com:{port}/")
+
+
 @pytest.mark.parametrize(
     "url",
     (
