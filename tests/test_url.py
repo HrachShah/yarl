@@ -429,6 +429,10 @@ def test_uppercase_ipfuture_address_is_accepted() -> None:
     assert url.host == "v1.fe"
 
 
+def test_uppercase_ipfuture_version_is_valid() -> None:
+    assert str(URL("http://[Vf.foo]/")) == "http://vf.foo/"
+
+
 def test_ipfuture_brackets_not_allowed() -> None:
     with pytest.raises(ValueError, match="IPvFuture address is invalid"):
         URL("http://[v10]/")
