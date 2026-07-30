@@ -424,9 +424,42 @@ def test_build_authority_with_text_after_bracket_is_invalid() -> None:
         URL.build(scheme="http", authority="[::1]allowed.example:1", path="/")
 
 
+def test_uppercase_ipfuture_address_is_accepted() -> None:
+    url = URL("http://[V1.fe]/")
+    assert url.host == "v1.fe"
+
+
+def test_uppercase_ipfuture_version_is_valid() -> None:
+    assert str(URL("http://[Vf.foo]/")) == "http://vf.foo/"
+
+
+@pytest.mark.parametrize("url", ("http://[v1.fe%20evil]/",))
+def test_ipfuture_rejects_invalid_address_characters(url: str) -> None:
+    with pytest.raises(ValueError, match="IPvFuture address is invalid"):
+        URL(url)
+
+
 def test_ipfuture_brackets_not_allowed() -> None:
     with pytest.raises(ValueError, match="IPvFuture address is invalid"):
         URL("http://[v10]/")
+
+
+@pytest.mark.parametrize("port", ("１２", "١٢"))
+def test_non_ascii_decimal_port_is_invalid(port: str) -> None:
+    with pytest.raises(ValueError, match="port (?:must contain only ASCII digits|can\'t be converted to integer)"):
+        URL(f"http://example.com:{port}/")
+
+
+@pytest.mark.parametrize("port", ("１２", "١٢"))
+def test_non_ascii_port_digits_are_rejected(port: str) -> None:
+    with pytest.raises(ValueError, match="port must contain only ASCII digits"):
+        URL(f"http://example.com:{port}/")
+
+
+@pytest.mark.parametrize("port", ("１２", "١٢", "+80", "80 "))
+def test_port_requires_ascii_digits(port: str) -> None:
+    with pytest.raises(ValueError, match="port must contain only ASCII digits"):
+        URL(f"http://example.com:{port}/")
 
 
 @pytest.mark.parametrize(
