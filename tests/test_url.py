@@ -424,6 +424,11 @@ def test_build_authority_with_text_after_bracket_is_invalid() -> None:
         URL.build(scheme="http", authority="[::1]allowed.example:1", path="/")
 
 
+def test_uppercase_ipfuture_address_is_accepted() -> None:
+    url = URL("http://[V1.fe]/")
+    assert url.host == "v1.fe"
+
+
 def test_ipfuture_brackets_not_allowed() -> None:
     with pytest.raises(ValueError, match="IPvFuture address is invalid"):
         URL("http://[v10]/")
