@@ -1,0 +1,2 @@
+Rejected boolean values passed as URL.build ports instead of treating them as integers.
+-- by :user:`HrachShah`
