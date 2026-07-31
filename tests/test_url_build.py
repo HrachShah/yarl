@@ -432,3 +432,33 @@ def test_build_uppercase_host() -> None:
         encoded=False,
     )
     assert u.host == "upper.case"
+
+
+def test_build_with_out_of_range_port_raises() -> None:
+    """URL.build should reject ports outside 0-65535 at construction time.
+
+    Previously, an out-of-range port was accepted by build() and only raised
+    ValueError when the URL was stringified (via split_netloc, which validates
+    the port). Mirrors the existing with_port() validation.
+    """
+    with pytest.raises(ValueError, match=r"port must be between 0 and 65535"):
+        URL.build(scheme="http", host="example.com", port=99999)
+    with pytest.raises(ValueError, match=r"port must be between 0 and 65535"):
+        URL.build(scheme="http", host="example.com", port=-1)
+    with pytest.raises(ValueError, match=r"port must be between 0 and 65535"):
+        URL.build(scheme="http", host="example.com", port=65536)
+
+
+def test_build_with_bool_port_rejected() -> None:
+    """URL.build should reject bool inputs for port (bools are ints in Python)."""
+    with pytest.raises(TypeError, match="The port is required to be int"):
+        URL.build(scheme="http", host="example.com", port=True)  # type: ignore[arg-type]
+    with pytest.raises(TypeError, match="The port is required to be int"):
+        URL.build(scheme="http", host="example.com", port=False)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("port", [0, 8080, 65535])
+def test_build_with_valid_port_succeeds(port: int) -> None:
+    """Boundary ports (0, 65535) and common values should build successfully."""
+    u = URL.build(scheme="http", host="example.com", port=port)
+    assert u.explicit_port == port

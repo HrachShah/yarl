@@ -1,0 +1,6 @@
+Fixed :meth:`~yarl.URL.build` accepting ports outside the valid TCP/UDP
+range (0-65535) without error. Out-of-range ports now raise
+``ValueError`` at construction time, matching the existing validation in
+:meth:`~yarl.URL.with_port`. Previously an out-of-range port was silently
+accepted by ``build`` and only raised during stringification, far from
+the actual misuse.
