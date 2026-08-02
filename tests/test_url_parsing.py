@@ -229,6 +229,11 @@ class TestPort:
         with pytest.raises(ValueError):
             URL("//h:-80/path")
 
+    @pytest.mark.parametrize("port", ["1_2", "+12", "１２３", " 12"])
+    def test_reject_decorated_port(self, port: str) -> None:
+        with pytest.raises(ValueError):
+            URL(f"//h:{port}/path")
+
 
 class TestUserInfo:
     def test_canonical(self) -> None:
