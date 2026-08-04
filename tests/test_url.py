@@ -553,6 +553,11 @@ def test_explicit_zero_port() -> None:
     assert url.port == 0
 
 
+def test_build_zero_port_requires_host() -> None:
+    with pytest.raises(ValueError, match='port.*without "host"'):
+        URL.build(scheme="http", port=0)
+
+
 def test_explicit_port_for_explicit_port() -> None:
     url = URL("http://example.com:8888")
     assert 8888 == url.explicit_port
