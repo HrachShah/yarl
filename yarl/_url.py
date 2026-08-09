@@ -439,7 +439,7 @@ class URL:
             raise TypeError(f"The port is required to be int, got {type(port)!r}.")
         if port is not None and not 0 <= port <= 65535:
             raise ValueError(f"The port must be between 0 and 65535, got {port}.")
-        if port and not host:
+        if port is not None and not host:
             raise ValueError('Can\'t build URL with "port" but without "host".')
         if query and query_string:
             raise ValueError('Only one of "query" or "query_string" should be passed')

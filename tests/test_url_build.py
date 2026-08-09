@@ -118,6 +118,11 @@ def test_build_with_port(port: int, exc: type[Exception], match: str) -> None:
         URL.build(port=port)
 
 
+def test_build_with_zero_port_without_host() -> None:
+    with pytest.raises(ValueError, match='port.*without "host"'):
+        URL.build(port=0)
+
+
 def test_build_with_user() -> None:
     u = URL.build(scheme="http", host="127.0.0.1", user="foo")
     assert str(u) == "http://foo@127.0.0.1"
