@@ -229,6 +229,11 @@ class TestPort:
         with pytest.raises(ValueError):
             URL("//h:-80/path")
 
+    @pytest.mark.parametrize("port", ["１２", "١٢", "+80", " 80"])
+    def test_rejects_non_ascii_or_decorated_ports(self, port: str) -> None:
+        with pytest.raises(ValueError, match="Invalid URL: port"):
+            URL(f"//h:{port}/path")
+
 
 class TestUserInfo:
     def test_canonical(self) -> None:
