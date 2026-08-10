@@ -553,6 +553,11 @@ def test_explicit_zero_port() -> None:
     assert url.port == 0
 
 
+def test_explicit_port_rejects_values_above_range() -> None:
+    with pytest.raises(ValueError, match="Port out of range 0-65535"):
+        URL("http://example.com:65536")
+
+
 def test_build_zero_port_requires_host() -> None:
     with pytest.raises(ValueError, match='port.*without "host"'):
         URL.build(scheme="http", port=0)
