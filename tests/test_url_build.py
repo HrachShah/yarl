@@ -124,6 +124,12 @@ def test_build_rejects_boolean_port(port: bool) -> None:
         URL.build(scheme="http", host="example.com", port=port)
 
 
+@pytest.mark.parametrize("port", [-1, 65536])
+def test_build_rejects_out_of_range_port(port: int) -> None:
+    with pytest.raises(ValueError, match="port must be between 0 and 65535"):
+        URL.build(scheme="http", host="example.com", port=port)
+
+
 def test_build_with_user() -> None:
     u = URL.build(scheme="http", host="127.0.0.1", user="foo")
     assert str(u) == "http://foo@127.0.0.1"
